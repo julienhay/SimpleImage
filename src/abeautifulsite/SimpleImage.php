@@ -1261,4 +1261,42 @@ class SimpleImage {
 		return false;
 	}
 	
+
+	/**
+	 * Get Util Height, only height with real content
+	 *
+	 * @param int			$content_padding		Padding of content to not parse
+	 * @param string		$bgcolor				Hex background color string, array(red, green, blue) or array(red, green, blue, alpha).
+	 * 												Where red, green, blue - integers 0-255, alpha - integer 0-127
+	 *
+	 * @return SimpleImage
+	 *
+	 */
+	public function getUtilHeight($content_padding = 20, $bgcolor = '#FFFFFF')
+	{
+		$rgba = $this->normalize_color($bgcolor);
+
+		$last_y = null;
+
+		for($y = $this->height-1; $y >= 0; $y--)
+		{
+			for($x = $content_padding; $x <= ($this->width - $content_padding); $x++)
+			{
+				$rgb = imagecolorat($this->image, $x, $y);
+				$r = ($rgb >> 16) & 0xFF;
+				$g = ($rgb >> 8) & 0xFF;
+				$b = $rgb & 0xFF;
+				if($r != $rgba['r'] || $g != $rgba['g'] || $b != $rgba['b'])
+				{
+					$last_y = $y; 
+					break;
+				}
+			}
+
+			if($last_y != null) break;
+		}
+
+		return ($this->height - ($this->height - $last_y));
+	}
+
 }
